@@ -16,7 +16,10 @@ NEWSPIDER_MODULE = 'Lagou.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36'
+# USER_AGENT = 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36'
+MY_USER_AGENT = [
+    'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36'
+]
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -52,9 +55,11 @@ DOWNLOAD_DELAY = 2
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
-#    'Lagou.middlewares.LagouDownloaderMiddleware': 543,
-#}
+DOWNLOADER_MIDDLEWARES = {
+    # 'Lagou.middlewares.LagouDownloaderMiddleware': 543,
+    'scrapy.downloadermiddleware.useragent.UserAgentMiddleware': None,
+    'Lagou.middlewares.MyUserAgentMiddleware': 400,
+}
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
@@ -88,3 +93,9 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+FEED_EXPORTERS_BASE = {
+    'json': 'Lagou.xxx.chongxie',
+    'jsonlines': 'scrapy.contrib.exporter.JsonLinesItemExporter',
+
+}

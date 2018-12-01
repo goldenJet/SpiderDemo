@@ -97,5 +97,4 @@ ITEM_PIPELINES = {
 FEED_EXPORTERS_BASE = {
     'json': 'Lagou.xxx.chongxie',
     'jsonlines': 'scrapy.contrib.exporter.JsonLinesItemExporter',
-
 }

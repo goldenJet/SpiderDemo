@@ -10,7 +10,12 @@ import scrapy
 
 class LagouItem(scrapy.Item):
     # define the fields for your item here like:
-    # name = scrapy.Field()
+    # 工作分类（大类，如：后端开发）
+    job_classify = scrapy.Field()
+    # 工作名（如 java）
+    job_name = scrapy.Field()
+    # 工作名的链接
+    job_url = scrapy.Field()
     # 公司名
     company = scrapy.Field()
     # 公司性质和规模

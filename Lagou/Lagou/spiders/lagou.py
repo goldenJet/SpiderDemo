@@ -6,7 +6,8 @@ from Lagou.items import LagouItem
 class LagouSpider(scrapy.Spider):
     name = 'lagou'
     allowed_domains = ['www.lagou.com']
-    start_urls = ["https://www.lagou.com/zhaopin/Java/1"]
+    # start_urls = ["https://www.lagou.com/zhaopin/Java/1"]
+    start_urls = ["https://www.lagou.com"]
 
     cookie = {
         'JSESSIONID': 'ABAAABAAAIAACBI6930FA480B9F0B2990D167F2C9A76996',
@@ -31,23 +32,55 @@ class LagouSpider(scrapy.Spider):
     }
 
     def parse(self, response):
-        node_list = response.xpath("//ul[@class='item_con_list']/li[@class='con_list_item default_list']")
+        for menu_sub in response.xpath("//div[@class='menu_sub dn']/dl"):
+            job_classify = menu_sub.xpath("./dt/span/text()").extract()[0]
+            for job in menu_sub.xpath("./dd/a"):
+                job_name = job.xpath("./text()").extract()[0]
+                job_url = job.xpath("./@href").extract()[0] + "1/"
 
+                item = LagouItem()
+                item['job_classify'] = job_classify
+                item['job_name'] = job_name
+                item['job_url'] = job_url
+                # yield item
+                yield scrapy.Request(job_url, cookies=self.cookie, meta={'item': item}, callback=self.parse_url)
+
+    def parse_url(self, response):
+        """
+        解析每个工作类的url
+        """
+        item_base = response.meta['item']
+        job_classify = item_base['job_classify']
+        job_name = item_base['job_name']
+        job_url = item_base['job_url']
+        node_list = response.xpath("//ul[@class='item_con_list']/li[@class='con_list_item default_list']")
         for node in node_list:
             item = LagouItem()
 
-            item['company'] = node.xpath("./div[@class='list_item_top']/div/div[@class='company_name']/a/text()").extract()[0]
-            item['company_scale'] = str.strip(node.xpath("./div[@class='list_item_top']/div/div[@class='industry']/text()").extract()[0])
-            item['position'] = node.xpath("./div[@class='list_item_top']/div/div[@class='p_top']/a/h3/text()").extract()[0]
-            item['address'] = node.xpath("./div[@class='list_item_top']/div/div[@class='p_top']/a/span/em/text()").extract()[0]
-            item['salary'] = node.xpath("./div[@class='list_item_top']/div/div[@class='p_bot']/div/span/text()").extract()[0]
-            item['experience'] = str.strip(node.xpath("./div[@class='list_item_top']/div/div[@class='p_bot']/div/text()[3]").extract()[0])
+            item['job_classify'] = job_classify
+            item['job_name'] = job_name
+            item['job_url'] = job_url
+            item['company'] = \
+                node.xpath("./div[@class='list_item_top']/div/div[@class='company_name']/a/text()").extract()[0]
+            item['company_scale'] = str.strip(
+                node.xpath("./div[@class='list_item_top']/div/div[@class='industry']/text()").extract()[0])
+            item['position'] = \
+                node.xpath("./div[@class='list_item_top']/div/div[@class='p_top']/a/h3/text()").extract()[0]
+            item['address'] = \
+                node.xpath("./div[@class='list_item_top']/div/div[@class='p_top']/a/span/em/text()").extract()[0]
+            item['salary'] = \
+                node.xpath("./div[@class='list_item_top']/div/div[@class='p_bot']/div/span/text()").extract()[0]
+            item['experience'] = str.strip(
+                node.xpath("./div[@class='list_item_top']/div/div[@class='p_bot']/div/text()[3]").extract()[0])
             item['work'] = node.xpath("./div[@class='list_item_bot']/div[@class='li_b_l']/span/text()").extract()
 
             yield item
 
         # 翻页
-        next_url = response.xpath("//div[@class='pager_container']/a[@class='page_no' and text()='下一页']/@href").extract()
+        next_url = response.xpath(
+            "//div[@class='pager_container']/a[@class='page_no' and text()='下一页']/@href").extract()
         if next_url:
             # yield scrapy.Request(response.urljoin(next_url[0] + "?filterOption=3"), self.parse)
-            yield scrapy.Request(next_url[0], cookies=self.cookie, callback=self.parse)
+            # yield scrapy.Request(next_url[0], cookies=self.cookie, callback=self.parse)
+            item_base['job_url'] = next_url[0]
+            yield scrapy.Request(next_url[0], cookies=self.cookie, meta={'item': item_base}, callback=self.parse_url)

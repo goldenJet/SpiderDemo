@@ -16,6 +16,13 @@ NEWSPIDER_MODULE = 'Douban.spiders'
 
 IMAGES_STORE = "D:\IT\Python\workspace\SpiderDemo\Douban\images\\"
 
+# mysql 设置
+MYSQL_HOST = 'localhost'
+MYSQL_PORT = 3380
+MYSQL_DBNAME = 'scrapy'
+MYSQL_USER = 'root'
+MYSQL_PASSWD = 'root'
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36'
 
@@ -67,7 +74,8 @@ DOWNLOAD_DELAY = 0.25
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'Douban.pipelines.DoubanMoviePipeline': 300,
-   'Douban.pipelines.DoubanImgPipeline': 301
+   'Douban.pipelines.DoubanImgPipeline': 301,
+   'Douban.pipelines.DoubanDBPipeline': 400
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

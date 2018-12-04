@@ -8,6 +8,7 @@ import os
 import json
 import codecs
 import scrapy
+import pymysql
 
 from scrapy.pipelines.images import ImagesPipeline
 
@@ -54,3 +55,50 @@ class DoubanImgPipeline(ImagesPipeline):
             pass
         return item
 
+
+class DoubanDBPipeline(object):
+    """
+    数据存入mysql
+    """
+
+    def __init__(self):
+        # 连接数据库
+        self.connect = pymysql.connect(
+            host=settings.MYSQL_HOST,
+            port=settings.MYSQL_PORT,
+            db=settings.MYSQL_DBNAME,
+            user=settings.MYSQL_USER,
+            passwd=settings.MYSQL_PASSWD,
+            charset='utf8mb4',
+            use_unicode=True
+        )
+        self.cursor = self.connect.cursor()
+
+    def process_item(self, item, spider):
+        # try:
+            # 插数据
+        self.cursor.execute(
+            """insert into douban_movie_top_250(film_name, director_performer_name, film_year, film_country, film_type, film_rating, film_reviews_num, film_quato, film_img_url)
+                VALUE (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (
+                item['film_name'],
+                item['director_performer_name'],
+                item['film_year'],
+                item['film_country'],
+                item['film_type'],
+                item['film_rating'],
+                item['film_reviews_num'],
+                item['film_quato'],
+                item['film_img_url']
+            )
+        )
+        # sql提交
+        self.connect.commit()
+        # except Exception as error:
+            # log(error)
+            # print("*"*30 + "shibai" + "*"*30)
+        return item
+
+    def close_spider(self, spider):
+        # 关闭数据库连接
+        self.connect.close()

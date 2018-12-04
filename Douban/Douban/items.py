@@ -31,4 +31,3 @@ class DoubanItem(scrapy.Item):
     film_quato = scrapy.Field()
     # 电影图片
     film_img_url = scrapy.Field()
-    pass

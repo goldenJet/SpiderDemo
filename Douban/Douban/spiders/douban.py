@@ -22,7 +22,9 @@ class DoubanSpider(scrapy.Spider):
                 film_name += title.strip()
             # 电影信息
             infos = film.xpath("./div[@class='info']/div[@class='bd']/p/text()").extract()
-            director_performer_name = infos[0]
+            director_performer_name = ""
+            for temp in infos[0]:
+                director_performer_name += temp.strip()
             year_country = infos[1]
             film_year = year_country.split("/")[0].strip()
             film_country = year_country.split("/")[1].strip()
@@ -37,7 +39,7 @@ class DoubanSpider(scrapy.Spider):
             if film_quato_temp:
                 film_quato = film_quato_temp[0].strip()
             # 电影图片链接
-            film_img_url = film.xpath("./div[@class='pic']/a/@href").extract()[0].strip()
+            film_img_url = film.xpath("./div[@class='pic']/a/img/@src").extract()[0].strip()
             item['film_name'] = film_name
             item['director_performer_name'] = director_performer_name
             # item['director_name'] = director_name

@@ -14,6 +14,7 @@ BOT_NAME = 'Douban'
 SPIDER_MODULES = ['Douban.spiders']
 NEWSPIDER_MODULE = 'Douban.spiders'
 
+IMAGES_STORE = "D:\IT\Python\workspace\SpiderDemo\Douban\images\\"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36'
@@ -64,9 +65,10 @@ DOWNLOAD_DELAY = 0.25
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'Douban.pipelines.DoubanPipeline': 300,
-#}
+ITEM_PIPELINES = {
+   'Douban.pipelines.DoubanMoviePipeline': 300,
+   'Douban.pipelines.DoubanImgPipeline': 301
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html

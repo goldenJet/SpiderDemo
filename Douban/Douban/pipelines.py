@@ -50,7 +50,7 @@ class DoubanImgPipeline(ImagesPipeline):
             # 重命名
             os.rename(film_img_disk_url1, film_img_disk_url)
         except Exception as error:
-            Logger(logLevel='error').getLogger().error("图片重命名失败", error)
+            Logger(logLevel='error').getLogger().error("图片重命名失败，异常信息：%s" % error)
             pass
         return item
 
@@ -75,22 +75,34 @@ class DoubanDBPipeline(object):
 
     def process_item(self, item, spider):
         try:
-            # 插数据
+            # 数据库查重
             self.cursor.execute(
-                """insert into douban_movie_top_250(film_name, director_performer_name, film_year, film_country, film_type, film_rating, film_reviews_num, film_quato, film_img_url)
-                    VALUE (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                (
-                    item['film_name'],
-                    item['director_performer_name'],
-                    item['film_year'],
-                    item['film_country'],
-                    item['film_type'],
-                    item['film_rating'],
-                    item['film_reviews_num'],
-                    item['film_quato'],
-                    item['film_img_url']
-                )
+                """select film_name from douban_movie_top_250 where film_name = %s and film_img_url = %s""",
+                (item['film_name'], item['film_img_url'])
             )
+            # 查重
+            repetition = self.cursor.fetchone()
+            if repetition:
+                # 数据重复
+                Logger().getLogger().info("数据重复，film_name: %s，film_img_url：%s" % (item['film_name'], item['film_img_url']))
+                pass
+            else:
+                # 插数据
+                self.cursor.execute(
+                    """insert into douban_movie_top_250(film_name, director_performer_name, film_year, film_country, film_type, film_rating, film_reviews_num, film_quato, film_img_url)
+                        VALUE (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                    (
+                        item['film_name'],
+                        item['director_performer_name'],
+                        item['film_year'],
+                        item['film_country'],
+                        item['film_type'],
+                        item['film_rating'],
+                        item['film_reviews_num'],
+                        item['film_quato'],
+                        item['film_img_url']
+                    )
+                )
             # sql提交
             self.connect.commit()
         except Exception as error:

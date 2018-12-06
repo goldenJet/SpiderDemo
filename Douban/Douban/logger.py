@@ -43,7 +43,7 @@ class Logger(object):
         # 创建一个logger
         self.logger = logging.getLogger(fileName)
         # 设置日志级别
-        self.logger.setLevel(logLevel)
+        self.logger.setLevel(self.format_dict.get(logLevel))
 
         # 格式化
         formatter = logging.Formatter(format)

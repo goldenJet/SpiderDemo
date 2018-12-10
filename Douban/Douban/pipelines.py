@@ -22,14 +22,19 @@ class DoubanMoviePipeline(object):
     """
 
     def __init__(self):
+        # 初始化：文件打开
         self.f = codecs.open("doubanData.json", mode="w", encoding="utf-8")
 
     def process_item(self, item, spider):
+        # 内容，结尾增加了换行
         content = json.dumps(dict(item), ensure_ascii=False) + ",\n"
+        # 内容写入文件
         self.f.write(content)
+        # 一定要记得 return，否则之后的 pipeline 拿不到 item，也就没法继续处理了
         return item
 
     def close_spider(self, spider):
+        # 爬虫关闭时进行：文件关闭
         self.f.close()
 
 
@@ -39,12 +44,21 @@ class DoubanImgPipeline(ImagesPipeline):
     """
 
     def get_media_requests(self, item, info):
+        """
+        图片下载
+        """
         film_img_url = item['film_img_url']
         yield scrapy.Request(film_img_url)
 
     def item_completed(self, results, item, info):
+        """
+        图片重命名
+        """
+        # 获取文件下载的路径
         path = [x['path'] for ok, x in results if ok]
+        # 原始的完整路径
         film_img_disk_url1 = settings.IMAGES_STORE + path[0]
+        # 准备存放的新的完整路径
         film_img_disk_url = settings.IMAGES_STORE + 'full\\' + item['film_name'].split("/")[0].strip() + ".jpg"
         try:
             # 重命名
